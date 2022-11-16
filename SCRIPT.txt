@@ -1,0 +1,248 @@
+
+repeat wait() until game:IsLoaded() 
+
+loadstring(game:HttpGet("https://raw.githubusercontent.com/tonspogi1/1/main/Tons.txt"))() 
+loadstring(game:HttpGet("https://raw.githubusercontent.com/tonspogi1/1/main/Tons1.txt"))() 
+
+game.ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("getclientping").OnClientInvoke = function(tonspogi1) 
+    task.wait(5)
+    return true 
+end
+
+bossnames = {}
+
+if Workspace:FindFirstChild("Mobs") and Workspace.Mobs:FindFirstChild("Bosses") then 
+    for i,v in pairs(Workspace.Mobs.Bosses:GetChildren()) do 
+        if v:FindFirstChild("Npc_Configuration") then 
+            table.insert(bossnames, require(v.Npc_Configuration).Name) 
+        end 
+        for i1,v1 in pairs(v:GetChildren()) do 
+            if v1:FindFirstChild("Npc_Configuration") then 
+                table.insert(bossnames, require(v1.Npc_Configuration).Name)
+            end 
+        end 
+    end 
+end 
+
+mobnames = {}
+
+if Workspace:FindFirstChild("Mobs") then 
+    for i,v in pairs(Workspace.Mobs:GetDescendants()) do 
+        if (Workspace.Mobs:FindFirstChild("Bosses") and (not v:IsDescendantOf(Workspace.Mobs.Bosses))) or true then 
+            if v:FindFirstChild("Npc_Configuration") and (not table.find(mobnames, require(v.Npc_Configuration).Name)) and (not table.find(bossnames, require(v.Npc_Configuration).Name)) then 
+                table.insert(mobnames, require(v.Npc_Configuration).Name)
+            end 
+        end 
+    end 
+end 
+
+
+mobs = {} 
+
+if Workspace:FindFirstChild("Mobs") then 
+    for i,v in pairs(Workspace.Mobs:GetDescendants()) do 
+        if v:FindFirstChild("Npc_Configuration") and v:FindFirstChild("Npc_Configuration"):IsA("ModuleScript") then
+            local modu = require(v.Npc_Configuration) 
+            table.insert(mobs, {v, modu.Npc_Spawning.Spawn_Locations[1] or modu.Npc_Spawning.Spawn_Locations, modu.Name})
+        end 
+        if v.Parent:FindFirstChild("Npc_Configuration") and v.Parent:FindFirstChild("Npc_Configuration"):IsA("ModuleScript") then
+            local modu = require(v.Parent.Npc_Configuration) 
+            table.insert(mobs, {v.Parent, modu.Npc_Spawning.Spawn_Locations[1] or modu.Npc_Spawning.Spawn_Locations, modu.Name})
+        end 
+    end 
+    
+    Workspace.Mobs.DescendantAdded:Connect(function(v)
+        if v:FindFirstChild("Npc_Configuration") and v:FindFirstChild("Npc_Configuration"):IsA("ModuleScript") then
+            local modu = require(v.Npc_Configuration) 
+            table.insert(mobs, {v, modu.Npc_Spawning.Spawn_Locations[1] or modu.Npc_Spawning.Spawn_Locations, modu.Name})
+        end 
+        if v.Parent:FindFirstChild("Npc_Configuration") and v.Parent:FindFirstChild("Npc_Configuration"):IsA("ModuleScript") then
+            local modu = require(v.Parent.Npc_Configuration) 
+            table.insert(mobs, {v.Parent, modu.Npc_Spawning.Spawn_Locations[1] or modu.Npc_Spawning.Spawn_Locations, modu.Name})
+        end 
+    end)
+    
+    Workspace.Mobs.DescendantRemoving:Connect(function(v)
+        if v:IsA("Configuration") then 
+            for i1,v1 in ipairs(mobs) do 
+                if v1[1] == v then 
+                    table.remove(mobs, i1)
+                end 
+            end 
+        end 
+    end) 
+end 
+
+local lib = loadstring(game:GetObjects("rbxassetid://7657867786")[1].Source)()
+local subs = lib.subs 
+local libclose = subs.Wait
+
+local window = lib:CreateWindow({
+    Name = "Tons123",
+    Themeable = {
+        Info = {"Crdts Nova :)"},
+        Credit = false, 
+        Background = "",
+        Visible = true
+    }
+})
+
+local main1 = window:CreateTab({
+    Name = "Main"
+})
+
+local section1 = main1:CreateSection({
+    Name = "Main"
+})
+
+local section2 = main1:CreateSection({
+    Name = "Kill Aura",
+    Side = "Right"
+})
+
+local section3 = main1:CreateSection({
+    Name = "Attributes"
+})    
+
+local section4 = main1:CreateSection({
+    Name = "Misc"
+    Slide = "Right"
+})
+
+local lasttick = tick()
+local curenemy
+local debounce = false 
+local lasttween 
+local bindable = Instance.new("BindableEvent")
+local killauraready = false 
+section1:AddToggle({
+    Name = "Auto Farm",
+    Value = false,
+    Flag = "Auto Farm", 
+    Callback = function(state)
+        a = state 
+        while a do 
+            local target = getclosestmob()
+            if target and target[1] and target[2] then 
+                if (not target[1]:FindFirstChild("HumanoidRootPart")) then 
+                    if lasttween then 
+                        lasttween:Pause()
+                    end 
+                    if curenemy ~= target[1] then 
+                        curenemy = target[1]
+                        lasttick = tick()
+                    end 
+                    if curenemy == target[1] and tick() - lasttick > 20 then 
+                        for i,v in ipairs(mobs) do 
+                            if v[1] == target[1].Parent then 
+                                table.remove(mobs, i)
+                            end 
+                        end 
+                    end 
+                    lasttween = TweenService:Create(HumanoidRootPart, TweenInfo.new((HumanoidRootPart.Position - target[2]).Magnitude / 500, Enum.EasingStyle.Linear), {CFrame = CFrame.new(target[2])})
+                    lasttween:Play()
+                elseif (target[1]:FindFirstChild("HumanoidRootPart")) then 
+                    if (HumanoidRootPart.Position - target[1].HumanoidRootPart.Position).Magnitude > 100 then 
+                        if lasttween then 
+                            lasttween:Pause() 
+                        end 
+                        lasttween = TweenService:Create(HumanoidRootPart, TweenInfo.new((HumanoidRootPart.Position - target[1].HumanoidRootPart.Position).Magnitude / 500, Enum.EasingStyle.Linear), {CFrame = target[1].HumanoidRootPart.CFrame})
+                        lasttween:Play()
+                    elseif (HumanoidRootPart.Position - target[1].HumanoidRootPart.Position).Magnitude < 100 then
+                        if killauraready then 
+                            HumanoidRootPart.CFrame = target[1].HumanoidRootPart.CFrame 
+                            bindable:Fire()
+                        else 
+                            HumanoidRootPart.CFrame = target[1].HumanoidRootPart.CFrame + Vector3.new(0, 80, 0)
+                        end 
+                    end 
+                end 
+            end 
+            task.wait()
+        end 
+    end 
+})
+
+
+local debounce = false 
+section2:AddToggle({
+    Name = "Kill Aura", 
+    Value = false, 
+    Flag = "KA", 
+    Callback = function(state)
+        b = state 
+        while b do 
+            if (not debounce) and ((not Player:FindFirstChild("combotangasd123")) or Player:FindFirstChild("combotangasd123") and Player:FindFirstChild("combotangasd123").Value < 1) then 
+                debounce = true 
+                local last = 20
+                game:GetService("ReplicatedStorage").Remotes.To_Server.Handle_Initiate_S:FireServer(c, Player, Character, HumanoidRootPart, Humanoid, 4, nil, nil, 20)
+                game:GetService("ReplicatedStorage").Remotes.To_Server.Handle_Initiate_S:FireServer(c, Player, Character, HumanoidRootPart, Humanoid, 919, nil, nil, 20)
+                game:GetService("ReplicatedStorage").Remotes.To_Server.Handle_Initiate_S:FireServer(c, Player, Character, HumanoidRootPart, Humanoid, 4, nil, nil, 20)
+                game:GetService("ReplicatedStorage").Remotes.To_Server.Handle_Initiate_S:FireServer(c, Player, Character, HumanoidRootPart, Humanoid, 919, nil, nil, 20)
+                game:GetService("ReplicatedStorage").Remotes.To_Server.Handle_Initiate_S:FireServer(c, Player, Character, HumanoidRootPart, Humanoid, 4, nil, nil, 20)
+                last = game:GetService("ReplicatedStorage").Remotes.To_Server.Handle_Initiate_S_:InvokeServer(c, Player, Character, HumanoidRootPart, Humanoid, 919, nil, nil, 20)
+                repeat Heartbeat:Wait() until last ~= 20 
+                task.wait(1.5)
+                debounce = false 
+            end 
+            task.wait()
+        end 
+    end 
+})
+
+section2:AddDropdown({
+    Name = "Select Weapon", 
+    Nothing = "Select Weapon..", 
+    List = {"fist_combat", "Sword_Combat_Slash", "claw_Combat_Slash", "Scythe_Combat_Slash"}, 
+    Flag = "SW", 
+    Callback = function(selected)
+        c = selected 
+    end 
+})
+
+section3:AddToggle({
+    Name = "Fire Blaze" 
+    Value = false 
+    Flag = "FB" 
+    Callback = function(state) 
+        FB = state 
+        if FB then game:GetService("ReplicatedStorage").Remotes.heart_ablaze_mode_remote:FireServer(true) 
+    else 
+        game:GetService("ReplicatedStorage").Remotes.heart_ablaze_mode_remote:FireServer(false) 
+    end
+})
+
+section3:AddToggle({
+    Name = "God Speed" 
+    Value = false 
+    Flag = "GS" 
+    Callback = function(state) 
+        GS = state 
+        if GS then game:GetService("ReplicatedStorage").Remotes.thundertang123:FireServer(true) 
+    else 
+        game:GetService("ReplicatedStorage").Remotes.thundertang123:FireServer(false) 
+    end
+})
+
+section3:AddToggle({
+    Name = "God Mode" 
+    Value = false 
+    Flag = "GM" 
+    Callback = function(state) 
+        GM = state 
+        if GM then game:GetService("ReplicatedStorage").Remotes.heal_tang123asd:FireServer(true) 
+    else 
+        game:GetService("ReplicatedStorage").Remotes.heal_tang123asd:FireServer(false) 
+    end
+})
+
+while wait() do for _, v in pairs(game:GetService("Workspace").Debree:GetChildren()) do if v.Name == "Loot_Chest" then for _, c in 
+    pairs(v:FindFirstChild("Drops"):GetChildren()) do if game:GetService("ReplicatedStorage")["Player_Data"]
+        [game.Players.LocalPlayer.Name].Inventory.Items:FindFirstChild(c.Name) then if game:GetService("ReplicatedStorage")["Player_Data"]
+            [game.Players.LocalPlayer.Name].Inventory.Items:FindFirstChild(c.Name):FindFirstChild("CanHaveMoreThenOne").Value == true then local args = { [1]
+                 = c.Name, } v["Add_To_Inventory"]:InvokeServer(unpack(args)) delay(0.5, function() c:Destroy() end) end else local args = { [1] = c.Name, }
+                     v["Add_To_Inventory"]:InvokeServer(unpack(args)) delay(0.5, function() c:Destroy() end) end end end end end
+
+for i,v in pairs(getconnections(Player.Idled)) do 
+    v:Disable()
+end
